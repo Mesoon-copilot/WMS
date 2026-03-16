@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Print Label WMS - Manage</title>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+:root{
+  --bg:#f6f7fb;--card:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;
+  --accent:#111827;--ok:#16a34a;--bad:#dc2626;--warn:#d97706;--radius:16px;
+  --shadow:0 10px 30px rgba(0,0,0,.06);--font:"Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
+.wrap{max-width:1400px;margin:18px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+h1,h2,h3{margin:0}
+.sub{font-size:12px;color:var(--muted);line-height:1.45}
+.grid{display:grid;gap:12px}
+.grid-6{grid-template-columns:repeat(6,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:1100px){.grid-6,.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.grid-6,.grid-4,.grid-3{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:#374151;margin-bottom:6px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;font-size:14px;background:#fff}
+input[readonly]{background:#f9fafb}
+textarea{min-height:84px;resize:vertical}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#111;color:#fff}
+button.secondary{background:#e5e7eb;color:#111}
+button.warn{background:#b45309}
+button.danger{background:#b91c1c}
+button:disabled{opacity:.6;cursor:not-allowed}
+.status{margin-left:auto;font-size:12px;display:flex;gap:8px;align-items:center}
+.dot{width:10px;height:10px;border-radius:999px;background:#9ca3af}.dot.ok{background:#22c55e}.dot.bad{background:#ef4444}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;background:#fff}
+.tableWrap{overflow:auto;margin-top:16px;border:1px solid var(--border);border-radius:16px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:1200px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top;text-align:left}
+th{background:#f9fafb;position:sticky;top:0;z-index:1}
+tr:hover td{background:#fcfcfd}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.badge.print{background:#ecfeff;color:#155e75}.badge.reprint{background:#eff6ff;color:#1d4ed8}.badge.delete{background:#fef2f2;color:#b91c1c}
+.badge.active{background:#f0fdf4;color:#166534}.badge.deleted{background:#fff1f2;color:#be123c}
+.rowBtns{display:flex;gap:6px;flex-wrap:wrap}.rowBtns button{padding:7px 10px;font-size:12px;border-radius:10px}
+.inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.check{display:flex;gap:8px;align-items:center;font-size:13px;color:#374151}
+.check input{width:auto}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:999}
+.modal.show{display:flex}.panel{width:min(1080px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 25px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb}
+.panelHead{padding:16px 18px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;position:sticky;top:0;background:#fff;z-index:2}
+.panelBody{padding:18px}.panelFoot{padding:16px 18px;border-top:1px solid #e5e7eb;display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+.noteBox{padding:12px;border:1px dashed #d1d5db;border-radius:12px;background:#fafafa;font-size:12px;color:#4b5563}
+.countBar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px}
+.select2-container .select2-selection--single{height:42px;border:1px solid #d1d5db;border-radius:12px;display:flex;align-items:center;padding:0 8px}
+.select2-container--default .select2-selection--single .select2-selection__rendered{line-height:40px;padding-left:4px}
+.select2-container--default .select2-selection--single .select2-selection__arrow{height:40px;right:8px}
+
+.previewCard{margin-top:14px;border:1px dashed #d1d5db;border-radius:16px;background:#fafafa;padding:14px}
+.previewHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.previewHint{font-size:12px;color:#6b7280}
+.previewStage{display:flex;justify-content:center;align-items:center;padding:12px;background:linear-gradient(180deg,#fff,#f8fafc);border:1px solid #e5e7eb;border-radius:14px;overflow:auto}
+.labelPreview{width:4in;min-width:4in;height:1.5in;background:#fff;border:1px solid #111;box-shadow:0 6px 20px rgba(0,0,0,.08);overflow:hidden;padding:.08in .12in}
+.labelUiTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.labelUiStore{font-size:14px;font-weight:900;line-height:1.1;max-width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.labelUiDate{font-size:10px;font-weight:800;margin-top:2px}
+.labelUiBranchWrap{text-align:right;min-width:88px}
+.labelUiBranchLabel{font-size:10px;font-weight:800;line-height:1.1}
+.labelUiBranchCode{font-size:16px;font-weight:900;line-height:1.05;margin-top:2px}
+.labelUiCenter{font-size:28px;font-weight:900;line-height:1;text-align:center;margin-top:12px}
+.labelUiProvince{font-size:14px;font-weight:900;line-height:1.1;text-align:center;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+
+<script src="config.js"></script>
+<script src="menu.js"></script>
+<script src="auth.js"></script>
+<script src="shell.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="inline" style="justify-content:space-between;align-items:flex-start;">
+      <div>
+        <h1>Manage Print Label WMS</h1>
+        <div class="sub">ค้นหา / แก้ไข / Reprint / Soft Delete / ดูประวัติย้อนหลัง</div>
+      </div>
+      <div class="pills">
+        <span class="pill">Default: แสดงเฉพาะ ACTIVE</span>
+        <span class="pill">History: ดู PRINT / REPRINT / DELETE</span>
+      </div>
+    </div>
+
+    <div class="grid grid-6" style="margin-top:14px;">
+      <div><label>วันที่เริ่ม</label><input id="dateFrom" type="date"></div>
+      <div><label>วันที่สิ้นสุด</label><input id="dateTo" type="date"></div>
+      <div><label>Wave</label><input id="searchWave" placeholder="เช่น WAVE123"></div>
+      <div><label>Branch</label><input id="searchBranch" placeholder="เช่น B100007"></div>
+      <div><label>ชื่อร้าน</label><input id="searchCustomer" placeholder="ค้นหาชื่อร้าน"></div>
+      <div><label>ค้นหาเพิ่มเติม</label><input id="searchQ" placeholder="Job ID / note / driver"></div>
+    </div>
+
+    <div class="actions">
+      <label class="check"><input id="includeDeleted" type="checkbox"> แสดง Deleted</label>
+      <label class="check"><input id="includeHistory" type="checkbox"> แสดง History</label>
+      <button id="btnSearch" type="button">ค้นหา</button>
+      <button id="btnToday" type="button" class="secondary">วันนี้</button>
+      <button id="btnClear" type="button" class="secondary">ล้างเงื่อนไข</button>
+      <div class="status">
+        <div class="dot" id="apiDot"></div>
+        <span id="apiText">พร้อมใช้งาน</span>
+      </div>
+    </div>
+
+    <div class="countBar">
+      <div class="sub" id="summaryText">ยังไม่มีข้อมูล</div>
+      <div class="sub mono">WEBAPP_URL: <span id="showUrl"></span></div>
+    </div>
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>Job ID</th>
+            <th>Branch</th>
+            <th>ชื่อร้าน</th>
+            <th>Wave</th>
+            <th>Pallet</th>
+            <th>คนขับ</th>
+            <th>กล่อง</th>
+            <th>Action</th>
+            <th>Status</th>
+            <th>อ้างอิง</th>
+            <th>Note</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody">
+          <tr><td colspan="13" class="sub">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="jobModal">
+  <div class="panel">
+    <div class="panelHead">
+      <div>
+        <h2 id="modalTitle">Job Detail</h2>
+        <div class="sub" id="modalSub">-</div>
+      </div>
+      <button type="button" class="secondary" id="btnCloseModal">ปิด</button>
+    </div>
+    <div class="panelBody">
+      <div class="grid grid-4">
+        <div><label>Job ID</label><input id="mJobId" readonly></div>
+        <div><label>Ref Job ID</label><input id="mRefJobId" readonly></div>
+        <div><label>Action</label><input id="mAction" readonly></div>
+        <div><label>Row Status</label><input id="mRowStatus" readonly></div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:12px;">
+        <div>
+          <label>เลือกลูกค้า</label>
+          <select id="mCustomerSelect" style="width:100%"></select>
+        </div>
+        <div><label>รหัสสาขา</label><input id="mBranchCode" readonly></div>
+        <div><label>จังหวัด</label><input id="mProvince" readonly></div>
+      </div>
+
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>ชื่อร้าน</label><input id="mCustomerName" readonly></div>
+        <div><label>จำนวนกล่อง</label><input id="mTotalBoxes" type="number" min="1" step="1"></div>
+        <div><label>Pallet</label><input id="mPallet"></div>
+        <div><label>Wave</label><input id="mWave"></div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:12px;">
+        <div>
+          <label>เลือกคนขับ</label>
+          <select id="mDriverSelect" style="width:100%"></select>
+        </div>
+        <div><label>ทะเบียน</label><input id="mDriverPlate" readonly></div>
+        <div><label>เบอร์โทร</label><input id="mDriverPhone" readonly></div>
+      </div>
+
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>ชื่อคนขับ</label><input id="mDriverName" readonly></div>
+        <div><label>Size M</label><input id="mSizeM" type="number" min="0" step="1"></div>
+        <div><label>tote_blue</label><input id="mBlue" type="number" min="0" step="1"></div>
+        <div><label>tote_red</label><input id="mRed" type="number" min="0" step="1"></div>
+      </div>
+
+      <div class="grid grid-4" style="margin-top:12px;">
+        <div><label>tote_green</label><input id="mGreen" type="number" min="0" step="1"></div>
+        <div><label>tote_black</label><input id="mBlack" type="number" min="0" step="1"></div>
+        <div><label>Updated At</label><input id="mUpdatedAt" readonly></div>
+        <div><label>Deleted At</label><input id="mDeletedAt" readonly></div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>หมายเหตุ</label>
+        <textarea id="mNote"></textarea>
+      </div>
+
+      <div class="previewCard">
+        <div class="previewHead">
+          <div>
+            <div style="font-weight:800">ตัวอย่างก่อนพิมพ์</div>
+            <div class="previewHint">Reprint จะสร้างแถวใหม่ใน Print_Log_DB แล้วพิมพ์จากหน้าจอนี้ทันที</div>
+          </div>
+          <div class="previewHint mono" id="previewJobText">Job Preview: -</div>
+        </div>
+        <div class="previewStage">
+          <div id="labelPreview" class="labelPreview"></div>
+        </div>
+      </div>
+
+      <div class="noteBox" style="margin-top:12px;">
+        Edit = แก้แถวเดิม<br>
+        Reprint = สร้างแถวใหม่<br>
+        Delete = soft delete เปลี่ยนสถานะเป็น DELETED
+      </div>
+    </div>
+    <div class="panelFoot">
+      <button type="button" id="btnViewMode" class="secondary">ดูอย่างเดียว</button>
+      <button type="button" id="btnSaveEdit">บันทึกแก้ไข</button>
+      <button type="button" id="btnReprint" class="warn">REPRINT</button>
+      <button type="button" id="btnDelete" class="danger">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WEBAPP_URL = window.APP_CONFIG.WEBAPP_URL;
+const API_TOKEN  = window.APP_CONFIG.API_TOKEN;
+
+const byId = (id) => document.getElementById(id);
+let customers = [];
+let drivers = [];
+let currentJob = null;
+let currentMode = "view";
+let busy = false;
+
+function esc(s){
+  return String(s ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/\"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function setApiStatus(state, text){
+  const dot = byId("apiDot");
+  dot.classList.remove("ok","bad");
+  if(state === "ok") dot.classList.add("ok");
+  if(state === "bad") dot.classList.add("bad");
+  byId("apiText").textContent = text;
+}
+
+function jsonpRequest(url){
+  return new Promise((resolve, reject) => {
+    const cb = "cb_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    window[cb] = (data) => {
+      try { delete window[cb]; } catch(_) {}
+      script.remove();
+      resolve(data);
+    };
+    script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + encodeURIComponent(cb);
+    script.onerror = () => {
+      try { delete window[cb]; } catch(_) {}
+      script.remove();
+      reject(new Error("JSONP request failed"));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+async function apiGet(op, params = {}){
+  const qs = new URLSearchParams({ op, token: API_TOKEN, ...params });
+  const json = await jsonpRequest(WEBAPP_URL + "?" + qs.toString());
+  if(!json || !json.ok) throw new Error((json && json.error) ? json.error : "API error");
+  return json;
+}
+
+function initCustomerSelect(){
+  const $sel = jQuery("#mCustomerSelect");
+  $sel.empty().append(new Option("", "", true, true));
+  customers.forEach(c => {
+    const text = `${c.branch_code} - ${c.customer_name} (${c.province})`;
+    $sel.append(new Option(text, c.branch_code, false, false));
+  });
+  $sel.select2({ placeholder: "ค้นหาลูกค้า", allowClear: true, width: "resolve", dropdownParent: jQuery("#jobModal .panel") });
+  $sel.on("change", function(){
+    const branch = jQuery(this).val();
+    const found = customers.find(x => x.branch_code === branch);
+    if(found){
+      byId("mBranchCode").value = found.branch_code;
+      byId("mCustomerName").value = found.customer_name;
+      byId("mProvince").value = found.province;
+    }
+    renderLabelPreview();
+  });
+}
+
+function initDriverSelect(){
+  const $sel = jQuery("#mDriverSelect");
+  $sel.empty().append(new Option("", "", true, true));
+  drivers.forEach(d => {
+    const text = `${d.plate} - ${d.driver_name} (${d.phone})`;
+    $sel.append(new Option(text, d.plate, false, false));
+  });
+  $sel.select2({ placeholder: "ค้นหาคนขับ", allowClear: true, width: "resolve", dropdownParent: jQuery("#jobModal .panel") });
+  $sel.on("change", function(){
+    const plate = jQuery(this).val();
+    const found = drivers.find(x => x.plate === plate);
+    if(found){
+      byId("mDriverPlate").value = found.plate;
+      byId("mDriverName").value = found.driver_name;
+      byId("mDriverPhone").value = found.phone;
+    } else {
+      byId("mDriverPlate").value = "";
+      byId("mDriverName").value = "";
+      byId("mDriverPhone").value = "";
+    }
+    renderLabelPreview();
+  });
+}
+
+function fmtDate(value){
+  if(!value) return "";
+  const d = new Date(value);
+  if(isNaN(d.getTime())) return String(value);
+  const dd = String(d.getDate()).padStart(2,"0");
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const yy = d.getFullYear() + 543;
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mi = String(d.getMinutes()).padStart(2,"0");
+  return `${dd}/${mm}/${yy} ${hh}:${mi}`;
+}
+
+function actionBadge(action){
+  const a = String(action || "").toUpperCase();
+  const cls = a === "REPRINT" ? "reprint" : a === "DELETE" ? "delete" : "print";
+  return `<span class="badge ${cls}">${esc(a || "-")}</span>`;
+}
+
+function statusBadge(status){
+  const s = String(status || "ACTIVE").toUpperCase();
+  const cls = s === "DELETED" ? "deleted" : "active";
+  return `<span class="badge ${cls}">${esc(s)}</span>`;
+}
+
+function renderRows(items){
+  const body = byId("resultBody");
+  if(!items.length){
+    body.innerHTML = `<tr><td colspan="13" class="sub">ไม่พบข้อมูล</td></tr>`;
+    return;
+  }
+  body.innerHTML = items.map(r => `
+    <tr>
+      <td>${esc(fmtDate(r.timestamp || r.date))}</td>
+      <td class="mono">${esc(r.job_id)}</td>
+      <td>${esc(r.branch_code)}</td>
+      <td>${esc(r.customer_name)}</td>
+      <td>${esc(r.wave)}</td>
+      <td>${esc(r.pallet)}</td>
+      <td>${esc(r.driver_name || "-")}</td>
+      <td>${esc(r.total_boxes)}</td>
+      <td>${actionBadge(r.action)}</td>
+      <td>${statusBadge(r.row_status)}</td>
+      <td class="mono">${esc(r.ref_job_id || "-")}</td>
+      <td>${esc(r.note || "-")}</td>
+      <td>
+        <div class="rowBtns">
+          <button type="button" class="secondary" onclick="openJob('${esc(r.job_id)}','view')">View</button>
+          <button type="button" onclick="openJob('${esc(r.job_id)}','edit')">Edit</button>
+          <button type="button" class="warn" onclick="openJob('${esc(r.job_id)}','reprint')">Reprint</button>
+          <button type="button" class="danger" onclick="openJob('${esc(r.job_id)}','delete')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join("");
+}
+
+async function searchLogs(){
+  setApiStatus("", "กำลังค้นหา...");
+  try{
+    const res = await apiGet("search_logs", {
+      date_from: byId("dateFrom").value,
+      date_to: byId("dateTo").value,
+      wave: byId("searchWave").value.trim(),
+      branch_code: byId("searchBranch").value.trim(),
+      customer_name: byId("searchCustomer").value.trim(),
+      q: byId("searchQ").value.trim(),
+      include_deleted: byId("includeDeleted").checked ? "1" : "0",
+      include_history: byId("includeHistory").checked ? "1" : "0",
+      limit: "300"
+    });
+    renderRows(res.items || []);
+    byId("summaryText").textContent = `พบ ${res.count || 0} รายการ`;
+    setApiStatus("ok", "พร้อมใช้งาน");
+  }catch(e){
+    renderRows([]);
+    byId("summaryText").textContent = "ค้นหาไม่สำเร็จ";
+    setApiStatus("bad", "ค้นหาไม่สำเร็จ");
+    alert("ค้นหาไม่สำเร็จ: " + (e.message || e));
+  }
+}
+
+function setModalMode(mode){
+  currentMode = mode;
+  const isView = mode === "view";
+  const isDeleted = String(byId("mRowStatus").value || "").toUpperCase() === "DELETED";
+
+  [
+    "mTotalBoxes","mPallet","mWave","mSizeM","mBlue","mRed","mGreen","mBlack","mNote"
+  ].forEach(id => byId(id).readOnly = isView || isDeleted);
+
+  jQuery("#mCustomerSelect").prop("disabled", isView || isDeleted).trigger("change.select2");
+  jQuery("#mDriverSelect").prop("disabled", isView || isDeleted).trigger("change.select2");
+
+  byId("btnSaveEdit").style.display = isView || isDeleted ? "none" : "inline-block";
+  byId("btnReprint").style.display = isDeleted ? "none" : "inline-block";
+  byId("btnDelete").style.display = isDeleted ? "none" : "inline-block";
+
+  const titleMap = { view:"ดูข้อมูล", edit:"แก้ไขข้อมูล", reprint:"Reprint", delete:"Delete" };
+  byId("modalTitle").textContent = titleMap[mode] || "Job Detail";
+  renderLabelPreview();
+}
+
+function fillModal(item){
+  currentJob = item;
+  byId("mJobId").value = item.job_id || "";
+  byId("mRefJobId").value = item.ref_job_id || "";
+  byId("mAction").value = item.action || "";
+  byId("mRowStatus").value = item.row_status || "ACTIVE";
+  byId("mBranchCode").value = item.branch_code || "";
+  byId("mCustomerName").value = item.customer_name || "";
+  byId("mProvince").value = item.province || "";
+  byId("mTotalBoxes").value = item.total_boxes || 0;
+  byId("mPallet").value = item.pallet || "";
+  byId("mWave").value = item.wave || "";
+  byId("mDriverPlate").value = item.driver_plate || "";
+  byId("mDriverName").value = item.driver_name || "";
+  byId("mDriverPhone").value = item.driver_phone || "";
+  byId("mSizeM").value = item.size_m || 0;
+  byId("mBlue").value = item.tote_blue || 0;
+  byId("mRed").value = item.tote_red || 0;
+  byId("mGreen").value = item.tote_green || 0;
+  byId("mBlack").value = item.tote_black || 0;
+  byId("mNote").value = item.note || "";
+  byId("mUpdatedAt").value = fmtDate(item.updated_at);
+  byId("mDeletedAt").value = fmtDate(item.deleted_at);
+  byId("modalSub").textContent = `สร้างเมื่อ ${fmtDate(item.timestamp || item.date)} | Job: ${item.job_id}`;
+
+  jQuery("#mCustomerSelect").val(item.branch_code || "").trigger("change");
+  jQuery("#mDriverSelect").val(item.driver_plate || "").trigger("change");
+  renderLabelPreview();
+}
+
+async function openJob(jobId, mode = "view"){
+  setApiStatus("", "กำลังโหลดข้อมูล...");
+  try{
+    const res = await apiGet("get_job", { job_id: jobId });
+    fillModal(res.item);
+    setModalMode(mode);
+    byId("jobModal").classList.add("show");
+    setApiStatus("ok", "พร้อมใช้งาน");
+  }catch(e){
+    setApiStatus("bad", "โหลดข้อมูลไม่สำเร็จ");
+    alert("โหลด job ไม่สำเร็จ: " + (e.message || e));
+  }
+}
+window.openJob = openJob;
+
+function closeModal(){
+  byId("jobModal").classList.remove("show");
+}
+
+function toIntValue(id){
+  const v = Number(byId(id).value);
+  return Number.isFinite(v) && v > 0 ? Math.floor(v) : 0;
+}
+
+function collectModalData(){
+  return {
+    job_id: byId("mJobId").value.trim(),
+    branch_code: byId("mBranchCode").value.trim(),
+    customer_name: byId("mCustomerName").value.trim(),
+    province: byId("mProvince").value.trim(),
+    total_boxes: String(toIntValue("mTotalBoxes")),
+    pallet: byId("mPallet").value.trim(),
+    wave: byId("mWave").value.trim(),
+    driver_plate: byId("mDriverPlate").value.trim(),
+    driver_name: byId("mDriverName").value.trim(),
+    driver_phone: byId("mDriverPhone").value.trim(),
+    size_m: String(Math.max(0, Number(byId("mSizeM").value) || 0)),
+    tote_blue: String(Math.max(0, Number(byId("mBlue").value) || 0)),
+    tote_red: String(Math.max(0, Number(byId("mRed").value) || 0)),
+    tote_green: String(Math.max(0, Number(byId("mGreen").value) || 0)),
+    tote_black: String(Math.max(0, Number(byId("mBlack").value) || 0)),
+    note: byId("mNote").value.trim(),
+    user_agent: navigator.userAgent
+  };
+}
+
+function validateModalData(d){
+  if(!d.branch_code) return "กรุณาเลือกลูกค้า";
+  if(!d.customer_name) return "ชื่อร้านว่าง";
+  if(!d.province) return "จังหวัดว่าง";
+  if(Number(d.total_boxes) <= 0) return "จำนวนกล่องต้องมากกว่า 0";
+  return "";
+}
+
+function formatThaiDate(d){
+  const dt = d ? new Date(d) : new Date();
+  if (Number.isNaN(dt.getTime())) return "-";
+  const dd = String(dt.getDate()).padStart(2,"0");
+  const mm = String(dt.getMonth()+1).padStart(2,"0");
+  const yyyy = dt.getFullYear() + 543;
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function buildLabelFaceHtml(d, boxNo, total, jobIdText){
+  return `
+    <div class="labelUiTop">
+      <div>
+        <div class="labelUiStore">${esc(d.customer_name || "-")}</div>
+        <div class="labelUiDate">${esc(d.date_text || formatThaiDate())}</div>
+      </div>
+      <div class="labelUiBranchWrap">
+        <div class="labelUiBranchLabel">รหัสสาขา:</div>
+        <div class="labelUiBranchCode">${esc(d.branch_code || "-")}</div>
+      </div>
+    </div>
+    <div class="labelUiCenter">${boxNo}/${total}</div>
+    <div class="labelUiProvince">จว.: ${esc(d.province || "-")}</div>`;
+}
+
+function buildPreviewHtml(d){
+  const total = Math.max(1, Number(d.total_boxes || 0));
+  const jobIdText = currentMode === "reprint" ? "NEW JOB" : (d.job_id || "NEW");
+  return buildLabelFaceHtml({ ...d, date_text: formatThaiDate(currentJob?.timestamp || currentJob?.date || new Date()) }, 1, total, jobIdText);
+}
+
+function renderLabelPreview(){
+  const box = byId("labelPreview");
+  const d = collectModalData();
+  const previewJob = currentMode === "reprint" ? "NEW JOB (หลังสร้าง REPRINT)" : (d.job_id || "-");
+  byId("previewJobText").textContent = `Job Preview: ${previewJob}`;
+  box.innerHTML = buildPreviewHtml(d);
+}
+
+function buildPrintHtml(data){
+  const total = Math.max(1, Number(data.total_boxes || 0));
+  const dateText = esc(data.date_text || formatThaiDate());
+  let labels = "";
+  for(let i = 1; i <= total; i++){
+    labels += `<div class="printLabel">${buildLabelFaceHtml({ ...data, date_text: dateText }, i, total, data.job_id || "")}</div>`;
+  }
+  return `<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Print Label WMS</title>
+<style>
+  @page{ size: 4in 1.5in; margin: 0; }
+  html,body{
+    margin:0;
+    padding:0;
+    width:4in;
+    background:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+    overflow:hidden;
+  }
+  .sheet{
+    display:block;
+    width:4in;
+    margin:0;
+    padding:0;
+  }
+  .printLabel{
+    width:4in;
+    height:1.5in;
+    box-sizing:border-box;
+    padding:.07in .11in;
+    border:0;
+    margin:0;
+    overflow:hidden;
+    page-break-after:always;
+    break-after:page;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .printLabel:last-child{
+    page-break-after:auto;
+    break-after:auto;
+  }
+  .labelUiTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .labelUiStoreWrap{min-width:0; flex:1 1 auto;}
+  .labelUiStore{
+    font-size:15px;
+    font-weight:900;
+    line-height:1;
+    max-width:100%;
+    white-space:normal;
+    word-break:break-word;
+    overflow:hidden;
+    max-height:.34in;
+  }
+  .labelUiDate{
+    font-size:11px;
+    font-weight:800;
+    line-height:1;
+    margin-top:.01in;
+  }
+  .labelUiBranchWrap{
+    text-align:right;
+    min-width:88px;
+    flex:0 0 auto;
+  }
+  .labelUiBranchLabel{
+    font-size:10px;
+    font-weight:800;
+    line-height:1;
+  }
+  .labelUiBranchCode{
+    font-size:14px;
+    font-weight:900;
+    line-height:1;
+    margin-top:.01in;
+  }
+  .labelUiCenter{
+    font-size:24px;
+    font-weight:900;
+    line-height:1;
+    text-align:center;
+    margin-top:.12in;
+  }
+  .labelUiProvince{
+    font-size:14px;
+    font-weight:900;
+    line-height:1;
+    text-align:center;
+    margin-top:.10in;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">${labels}</div>
+<script>
+  window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };
+  window.onafterprint = function(){ try{ window.close(); }catch(e){} };
+<\/script>
+</body>
+</html>`;
+}
+
+function printLabels(printData){
+  const html = buildPrintHtml(printData);
+  const w = window.open("", "_blank");
+  if(!w){
+    throw new Error("Popup ถูกบล็อก กรุณาอนุญาต popup สำหรับการพิมพ์");
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+async function guardedAction(fn){
+  if(busy) return;
+  busy = true;
+  try{ await fn(); } finally { busy = false; }
+}
+
+byId("btnSaveEdit").addEventListener("click", () => guardedAction(async () => {
+  const d = collectModalData();
+  const err = validateModalData(d);
+  if(err){ alert(err); return; }
+  setApiStatus("", "กำลังบันทึกแก้ไข...");
+  await apiGet("update_job", d);
+  setApiStatus("ok", "บันทึกแก้ไขสำเร็จ");
+  closeModal();
+  await searchLogs();
+}));
+
+byId("btnReprint").addEventListener("click", () => guardedAction(async () => {
+  const d = collectModalData();
+  const err = validateModalData(d);
+  if(err){ alert(err); return; }
+  if(!confirm(`ต้องการ REPRINT งาน ${d.job_id} ใช่หรือไม่`)) return;
+
+  const printWin = window.open("", "_blank", "width=1200,height=900");
+  if(!printWin){
+    alert("Browser บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับเว็บไซต์นี้ก่อน");
+    return;
+  }
+
+  printWin.document.open();
+  printWin.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Preparing print...</title><style>body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#111}.box{padding:24px 28px;border:1px solid #ddd;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08)}</style></head><body><div class="box">กำลังเตรียมงานพิมพ์...</div></body></html>`);
+  printWin.document.close();
+
+  setApiStatus("", "กำลังสร้างงาน REPRINT...");
+  const res = await apiGet("reprint_job", d);
+
+  const printData = {
+    ...d,
+    job_id: res.job_id,
+    action: "REPRINT",
+    date_text: formatThaiDate(new Date())
+  };
+
+  printWin.document.open();
+  printWin.document.write(buildPrintHtml(printData));
+  printWin.document.close();
+
+  setApiStatus("ok", `สร้าง REPRINT สำเร็จ: ${res.job_id}`);
+  closeModal();
+  byId("includeHistory").checked = true;
+  await searchLogs();
+}));
+
+byId("btnDelete").addEventListener("click", () => guardedAction(async () => {
+  const d = collectModalData();
+  if(!confirm(`ต้องการ DELETE (soft delete) งาน ${d.job_id} ใช่หรือไม่`)) return;
+  setApiStatus("", "กำลังลบข้อมูล...");
+  await apiGet("delete_job", { job_id: d.job_id, note: d.note, user_agent: navigator.userAgent });
+  setApiStatus("ok", "ลบข้อมูลสำเร็จ");
+  closeModal();
+  await searchLogs();
+}));
+
+byId("btnViewMode").addEventListener("click", () => setModalMode("view"));
+byId("btnCloseModal").addEventListener("click", closeModal);
+byId("jobModal").addEventListener("click", (ev) => { if(ev.target.id === "jobModal") closeModal(); });
+
+byId("btnSearch").addEventListener("click", searchLogs);
+byId("btnClear").addEventListener("click", () => {
+  ["dateFrom","dateTo","searchWave","searchBranch","searchCustomer","searchQ"].forEach(id => byId(id).value = "");
+  byId("includeDeleted").checked = false;
+  byId("includeHistory").checked = false;
+  searchLogs();
+});
+byId("btnToday").addEventListener("click", () => {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,"0");
+  const dd = String(today.getDate()).padStart(2,"0");
+  const v = `${yyyy}-${mm}-${dd}`;
+  byId("dateFrom").value = v;
+  byId("dateTo").value = v;
+  searchLogs();
+});
+
+["searchWave","searchBranch","searchCustomer","searchQ"].forEach(id => {
+  byId(id).addEventListener("keydown", (ev) => {
+    if(ev.key === "Enter"){ ev.preventDefault(); searchLogs(); }
+  });
+});
+
+["mTotalBoxes","mPallet","mWave","mSizeM","mBlue","mRed","mGreen","mBlack","mNote"].forEach(id => {
+  byId(id).addEventListener("input", renderLabelPreview);
+});
+
+(async function init(){
+  try{
+    byId("showUrl").textContent = WEBAPP_URL;
+    setApiStatus("", "กำลังโหลดข้อมูล...");
+    customers = (await apiGet("customers")).items || [];
+    drivers = (await apiGet("drivers")).items || [];
+    initCustomerSelect();
+    initDriverSelect();
+    await searchLogs();
+    setApiStatus("ok", "พร้อมใช้งาน");
+  }catch(e){
+    setApiStatus("bad", "โหลดข้อมูลไม่สำเร็จ");
+    alert("เริ่มต้นระบบไม่สำเร็จ: " + (e.message || e));
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - Print Label WMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <script src="menu.js"></script>
+  <script src="auth.js"></script>
+  <script src="shell.js"></script>
+  <style>
+    :root{--bg:#f5f7fb;--card:#fff;--ink:#111827;--line:#dbe2ea;--shadow:0 12px 30px rgba(15,23,42,.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:"Kanit","Segoe UI",sans-serif;color:var(--ink)}
+    .wrap{max-width:1220px;margin:0 auto;padding:20px}
+    .hero{
+      background:linear-gradient(135deg,#1d4ed8,#0f172a); color:#fff; border-radius:22px;
+      padding:28px; box-shadow:var(--shadow); margin-bottom:18px;
+    }
+    .hero h1{margin:0 0 6px; font-size:32px}
+    .hero p{margin:0; opacity:.92}
+    .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .card{
+      display:block; background:var(--card); border:1px solid var(--line); border-radius:22px;
+      padding:22px; box-shadow:var(--shadow); text-decoration:none; color:inherit; transition:.18s ease;
+    }
+    .card:hover{transform:translateY(-2px)}
+    .icon{font-size:32px; margin-bottom:10px}
+    .title{font-size:22px; font-weight:700; margin-bottom:8px}
+    .desc{font-size:14px; color:#475569; line-height:1.6}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+    @media print{.wrap{padding:0}.card,.hero{box-shadow:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Dashboard</h1>
+      <p>ศูนย์กลางการใช้งานระบบพิมพ์ Label, จัดการงาน, และรายงาน Control Outbound</p>
+    </section>
+
+    <section class="grid">
+      <a class="card" href="label-print-app.html">
+        <div class="icon">🏷️</div>
+        <div class="title">Print Label</div>
+        <div class="desc">สร้างงานพิมพ์ใหม่สำหรับสาขา เลือกลูกค้า เลือกคนขับ และพิมพ์ Label ขนาด 4 x 1.5 นิ้ว</div>
+      </a>
+      <a class="card" href="manage-app.html">
+        <div class="icon">🗂️</div>
+        <div class="title">Manage</div>
+        <div class="desc">ค้นหา แก้ไข Reprint และลบแบบ Soft Delete พร้อมประวัติงานย้อนหลัง</div>
+      </a>
+      <a class="card" href="report-app.html">
+        <div class="icon">📊</div>
+        <div class="title">Report</div>
+        <div class="desc">สรุปรายงาน Control Outbound ตามช่วงวันที่ สถานะ และ Export Excel ได้ทันที</div>
+      </a>
+    </section>
+  </div>
+</body>
+</html>

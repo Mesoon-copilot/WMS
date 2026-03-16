@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Outbound Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe2ea;
+      --line-strong:#9aa7b5;
+      --primary:#1d4ed8;
+      --primary-2:#dbeafe;
+      --danger:#b91c1c;
+      --success:#166534;
+      --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Kanit","Angsana New",sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .page{
+      max-width:1440px;
+      margin:0 auto;
+      padding:22px;
+    }
+    .hero{
+      background:linear-gradient(135deg,#1d4ed8 0%,#0f172a 100%);
+      color:#fff;
+      border-radius:18px;
+      padding:22px 24px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+    .hero h1{
+      margin:0 0 4px;
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .hero p{
+      margin:0;
+      color:rgba(255,255,255,.88);
+      font-size:15px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+    }
+    .card .hd{
+      padding:16px 18px 10px;
+      border-bottom:1px solid var(--line);
+      font-size:18px;
+      font-weight:600;
+    }
+    .card .bd{
+      padding:18px;
+    }
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+    .form-grid > div,
+    .btn-row,
+    .btn-row-3{
+      width:100%;
+    }
+    label{
+      display:block;
+      font-size:13px;
+      font-weight:500;
+      color:#334155;
+      margin-bottom:6px;
+    }
+    input, select{
+      width:100%;
+      height:42px;
+      border:1px solid var(--line-strong);
+      border-radius:12px;
+      padding:0 12px;
+      font:inherit;
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    input:focus, select:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(29,78,216,.1);
+    }
+    .btn-row,
+    .btn-row-3{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .btn-row button,
+    .btn-row-3 button{
+      width:100%;
+      display:block;
+    }
+    button{
+      height:42px;
+      border:0;
+      border-radius:12px;
+      padding:0 14px;
+      font:inherit;
+      font-weight:600;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary); color:#fff}
+    .btn-soft{background:#eef2f7; color:#0f172a}
+    .btn-print{background:#0f766e; color:#fff}
+    .btn-export{background:#7c3aed; color:#fff}
+    .hint{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .stat{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      min-height:92px;
+    }
+    .stat .k{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:6px;
+    }
+    .stat .v{
+      font-size:28px;
+      font-weight:700;
+      line-height:1.1;
+    }
+    .report-head{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px 16px;
+      text-align:center;
+      margin-bottom:12px;
+    }
+    .report-head .title{
+      font-size:26px;
+      font-weight:700;
+      line-height:1.1;
+    }
+    .report-head .date{
+      font-size:18px;
+      font-weight:500;
+      margin-top:6px;
+    }
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1180px;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#e8eef8;
+      color:#0f172a;
+      border-bottom:1px solid var(--line-strong);
+      font-size:13px;
+      font-weight:600;
+      text-align:center;
+      padding:10px 8px;
+      white-space:nowrap;
+    }
+    tbody td{
+      border-bottom:1px solid var(--line);
+      padding:9px 8px;
+      font-size:13px;
+      vertical-align:middle;
+    }
+    tbody tr:nth-child(odd){background:#fcfdff}
+    tbody tr:hover{background:#f8fbff}
+    tfoot td{
+      background:#f8fafc;
+      border-top:2px solid var(--line-strong);
+      font-weight:700;
+      padding:10px 8px;
+      font-size:13px;
+    }
+    .ta-c{text-align:center}
+    .ta-r{text-align:right}
+    .ta-l{text-align:left}
+    .status{
+      margin-top:10px;
+      min-height:24px;
+      font-size:13px;
+      font-weight:500;
+    }
+    .status.ok{color:var(--success)}
+    .status.err{color:var(--danger)}
+    .status.info{color:#1d4ed8}
+    .empty{
+      padding:26px 14px;
+      text-align:center;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    
+    .print-summary{
+      display:none;
+      margin-top:16px;
+      width:100%;
+      max-width:100%;
+    }
+    .print-summary-table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+    }
+    .print-summary-table td{
+      border:none !important;
+      padding:4px 6px;
+      font-size:14px;
+      background:#fff !important;
+    }
+    .print-summary-title{
+      font-size:18px !important;
+      font-weight:700 !important;
+      text-align:left;
+      padding:8px 0 6px 0 !important;
+    }
+    .print-summary-label{
+      font-weight:700;
+      text-align:left;
+      white-space:nowrap;
+    }
+    .print-summary-num{
+      font-weight:700;
+      text-align:right;
+      white-space:nowrap;
+      width:90px;
+    }
+    .print-summary-unit{
+      font-weight:700;
+      text-align:left;
+      white-space:nowrap;
+      width:80px;
+    }
+
+@media (max-width: 1180px){
+      .page{padding:16px}
+      .grid{grid-template-columns:1fr}
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width: 860px){
+      .page{padding:12px}
+      .hero{padding:16px 16px 14px}
+      .hero h1{font-size:22px}
+      .hero p{font-size:13px}
+      .card .hd{padding:14px 14px 9px; font-size:16px}
+      .card .bd{padding:14px}
+      .report-head{padding:14px 12px}
+      .report-head .title{font-size:20px}
+      .report-head .date{font-size:15px}
+      .stats{grid-template-columns:1fr 1fr; gap:10px}
+      .stat{padding:12px 12px; min-height:0}
+      .stat .k{font-size:12px}
+      .stat .v{font-size:22px}
+      .btn-row,.btn-row-3{grid-template-columns:1fr}
+      .table-wrap{
+        border:0;
+        background:transparent;
+        overflow:visible;
+      }
+      table,
+      thead,
+      tfoot{
+        display:none;
+      }
+      tbody{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:12px;
+      }
+      tbody tr{
+        display:block;
+        background:#fff !important;
+        border:1px solid var(--line);
+        border-radius:16px;
+        box-shadow:var(--shadow);
+        padding:12px;
+      }
+      tbody td{
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        align-items:flex-start;
+        border-bottom:1px dashed var(--line);
+        padding:8px 0;
+        font-size:13px;
+      }
+      tbody td:last-child{border-bottom:0}
+      tbody td::before{
+        content:attr(data-label);
+        flex:0 0 42%;
+        font-weight:600;
+        color:#475569;
+      }
+    }
+    @media (max-width: 560px){
+      .page{padding:10px}
+      .stats{grid-template-columns:1fr}
+      tbody td{
+        flex-direction:column;
+        gap:4px;
+        align-items:stretch;
+      }
+      tbody td::before{flex:0 0 auto}
+    }
+
+    
+    @media print{
+      @page{
+        size:A4 landscape;
+        margin:10mm;
+      }
+      html,body{
+        margin:0 !important;
+        padding:0 !important;
+        background:#fff !important;
+        color:#000 !important;
+        font-family:"Kanit","Angsana New",sans-serif !important;
+      }
+      body.app-shell-ready{
+        padding-top:0 !important;
+      }
+      .app-shell,
+      .app-shell-overlay,
+      .no-print,
+      .hero,
+      #emptyState{
+        display:none !important;
+      }
+      .page{
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+      .grid{
+        display:block !important;
+      }
+      .card{
+        border:0 !important;
+        box-shadow:none !important;
+        border-radius:0 !important;
+        background:#fff !important;
+      }
+      .report-head{
+        margin:0 0 8mm 0 !important;
+        padding:0 !important;
+        border:0 !important;
+        background:#fff !important;
+        text-align:center !important;
+      }
+      .report-head .title{
+        font-size:18pt !important;
+      }
+      .report-head .date{
+        font-size:12pt !important;
+        margin-top:2mm !important;
+      }
+      .stats{
+        display:none !important;
+      }
+      .table-wrap{
+        overflow:visible !important;
+        border:0 !important;
+        border-radius:0 !important;
+        background:#fff !important;
+      }
+      table{
+        display:table !important;
+        width:100% !important;
+        min-width:0 !important;
+        border-collapse:collapse !important;
+      }
+      thead{
+        display:table-header-group !important;
+      }
+      tbody{
+        display:table-row-group !important;
+      }
+      tfoot{
+        display:table-footer-group !important;
+      }
+      tr{
+        display:table-row !important;
+        background:#fff !important;
+        box-shadow:none !important;
+        border:0 !important;
+      }
+      th, td{
+        display:table-cell !important;
+        border:1px solid #999 !important;
+        padding:4px 5px !important;
+        font-size:10pt !important;
+        vertical-align:middle !important;
+      }
+      td::before{
+        content:none !important;
+        display:none !important;
+      }
+      thead th{
+        position:static !important;
+        background:#f0f0f0 !important;
+        font-weight:700 !important;
+        text-align:center !important;
+      }
+      tbody tr:nth-child(odd),
+      tbody tr:hover{
+        background:#fff !important;
+      }
+      .print-summary{
+        display:block !important;
+        margin:6mm 0 0 0 !important;
+        width:100% !important;
+      }
+      .print-summary-table{
+        width:100% !important;
+        border-collapse:collapse !important;
+        table-layout:fixed !important;
+      }
+      .print-summary-table td{
+        border:none !important;
+        padding:4px 6px !important;
+        font-size:11pt !important;
+        background:#fff !important;
+      }
+      .print-summary-title{
+        font-size:14pt !important;
+        font-weight:700 !important;
+        text-align:left !important;
+        padding:8px 0 6px 0 !important;
+      }
+      .print-summary-label,
+      .print-summary-num,
+      .print-summary-unit{
+        font-size:11pt !important;
+        font-weight:700 !important;
+      }
+      .print-summary-label{
+        text-align:left !important;
+        white-space:nowrap !important;
+      }
+      .print-summary-num{
+        text-align:right !important;
+        white-space:nowrap !important;
+      }
+      .print-summary-unit{
+        text-align:left !important;
+        white-space:nowrap !important;
+      }
+    }
+</style>
+
+<script src="config.js"></script>
+<script src="menu.js"></script>
+<script src="auth.js"></script>
+<script src="shell.js"></script>
+</head>
+<body>
+  <div class="page">
+    <section class="hero no-print">
+      <h1>Report : Control Outbound</h1>
+      <p>สรุปรายงานการกระจายสินค้า แสดงผลตามช่วงวันที่และสถานะจาก Print_Log_DB</p>
+    </section>
+
+    <div class="grid">
+      <aside class="card no-print">
+        <div class="hd">ตัวกรองรายงาน</div>
+        <div class="bd">
+          <div class="form-grid">
+            <div>
+              <label for="dateFrom">วันที่เริ่มต้น</label>
+              <input type="date" id="dateFrom">
+            </div>
+            <div>
+              <label for="dateTo">วันที่สิ้นสุด</label>
+              <input type="date" id="dateTo">
+            </div>
+            <div>
+              <label for="statusFilter">สถานะ</label>
+              <select id="statusFilter">
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="DELETED">DELETED</option>
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-primary" id="btnSearch">ค้นหา</button>
+            <button class="btn-soft" id="btnReset">ล้างค่า</button>
+          </div>
+          <div class="btn-row-3">
+            <button class="btn-print" id="btnPrint">พิมพ์รายงาน</button>
+            <button class="btn-export" id="btnExport">Export Excel</button>
+            <button class="btn-soft" id="btnToday">วันนี้</button>
+          </div>
+
+          <div class="hint">
+            จำนวนลังทั้งหมดต่อแถว = Size M + Tote แดง + Tote น้ำเงิน + Tote ดำ + Tote เขียว<br>
+            จำนวนพาเลททั้งหมด = ผลรวมจากคอลัมน์ Pallet
+          </div>
+          <div id="statusBox" class="status"></div>
+        </div>
+      </aside>
+
+      <main class="card">
+        <div class="bd">
+          <div class="report-head">
+            <div class="title">Control Outbound</div>
+            <div class="date" id="reportDateText">-</div>
+          </div>
+
+          <section class="stats" id="summaryCards">
+            <div class="stat">
+              <div class="k">จำนวนกล่องทั้งหมด</div>
+              <div class="v" id="sumBoxes">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">จำนวนพาเลททั้งหมด</div>
+              <div class="v" id="sumPallets">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">จำนวนสาขาทั้งหมด</div>
+              <div class="v" id="sumBranches">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">จำนวนจังหวัดที่ส่ง</div>
+              <div class="v" id="sumProvinces">0</div>
+            </div>
+          </section>
+
+          <div class="table-wrap">
+            <table id="reportTable">
+              <thead>
+                <tr>
+                  <th style="width:60px">ลำดับ</th>
+                  <th style="width:110px">รหัสสาขา</th>
+                  <th>ชื่อสาขา</th>
+                  <th style="width:110px">จังหวัด</th>
+                  <th style="width:80px">Size M</th>
+                  <th style="width:90px">Tote แดง</th>
+                  <th style="width:100px">Tote น้ำเงิน</th>
+                  <th style="width:90px">Tote ดำ</th>
+                  <th style="width:95px">Tote เขียว</th>
+                  <th style="width:110px">จำนวนลังทั้งหมด</th>
+                  <th style="width:80px">Pallet</th>
+                  <th style="width:120px">WAVE</th>
+                  <th style="width:130px">ป้ายทะเบียน</th>
+                </tr>
+              </thead>
+              <tbody id="reportBody"></tbody>
+              <tfoot id="reportFoot"></tfoot>
+            </table>
+            <div id="emptyState" class="empty">ยังไม่มีข้อมูลรายงาน กรุณาเลือกช่วงวันที่และกดค้นหา</div>
+
+          </div>
+
+          <section class="print-summary" id="printSummary">
+            <table class="print-summary-table">
+              <tr>
+                <td colspan="6" class="print-summary-title">สรุปงาน</td>
+              </tr>
+              <tr>
+                <td colspan="2" class="print-summary-label">จำนวนกล่องทั้งหมด</td>
+                <td class="print-summary-num" id="printSumBoxes">0</td>
+                <td class="print-summary-unit">ชิ้น</td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="print-summary-label">จำนวนพาเลททั้งหมด</td>
+                <td class="print-summary-num" id="printSumPallets">0</td>
+                <td class="print-summary-unit">พาเลท</td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="print-summary-label">จำนวนสาขาทั้งหมด</td>
+                <td class="print-summary-num" id="printSumBranches">0</td>
+                <td class="print-summary-unit">สาขา</td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="print-summary-label">จำนวนจังหวัดที่ส่ง</td>
+                <td class="print-summary-num" id="printSumProvinces">0</td>
+                <td class="print-summary-unit">จังหวัด</td>
+                <td colspan="2"></td>
+              </tr>
+            </table>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const WEBAPP_URL = window.APP_CONFIG.WEBAPP_URL;
+const API_TOKEN  = window.APP_CONFIG.API_TOKEN;
+
+    const state = {
+      items: [],
+      summary: {
+        total_boxes: 0,
+        total_pallets: 0,
+        total_branches: 0,
+        total_provinces: 0,
+        totals_row: {
+          size_m: 0,
+          tote_red: 0,
+          tote_blue: 0,
+          tote_black: 0,
+          tote_green: 0,
+          row_total: 0,
+          pallet: 0
+        }
+      },
+      filters: {
+        date_from: "",
+        date_to: "",
+        status: "ACTIVE"
+      }
+    };
+
+    const byId = id => document.getElementById(id);
+
+    function setStatus(type, text){
+      const el = byId("statusBox");
+      el.className = "status" + (type ? " " + type : "");
+      el.textContent = text || "";
+    }
+
+    function toInt(v){
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatThaiDateInput(iso){
+      if(!iso) return "-";
+      const d = new Date(iso + "T00:00:00");
+      if(isNaN(d.getTime())) return iso;
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear() + 543;
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function buildDateRangeText(){
+      const from = byId("dateFrom").value;
+      const to = byId("dateTo").value;
+      const fromTxt = formatThaiDateInput(from);
+      const toTxt = formatThaiDateInput(to);
+      return `${fromTxt} - ${toTxt}`;
+    }
+
+    function todayIso(){
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function applyToday(){
+      const t = todayIso();
+      byId("dateFrom").value = t;
+      byId("dateTo").value = t;
+      byId("statusFilter").value = "ACTIVE";
+      byId("reportDateText").textContent = buildDateRangeText();
+    }
+
+    function jsonpRequest(url){
+      return new Promise((resolve, reject) => {
+        const cbName = "__jsonp_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+        const script = document.createElement("script");
+        const cleanup = () => {
+          try{ delete window[cbName]; }catch(_){}
+          if(script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        window[cbName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("โหลดข้อมูลรายงานไม่สำเร็จ"));
+        };
+
+        script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cbName;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function apiReportData(params){
+      const q = new URLSearchParams({
+        op: "report_data",
+        token: API_TOKEN,
+        date_from: params.date_from,
+        date_to: params.date_to,
+        status: params.status
+      });
+      const data = await jsonpRequest(`${WEBAPP_URL}?${q.toString()}`);
+      if(!data || data.ok !== true){
+        throw new Error((data && data.error) || "ไม่สามารถดึงข้อมูลรายงานได้");
+      }
+      return data;
+    }
+
+    function renderSummary(summary){
+      const totalBoxes = toInt(summary.total_boxes).toLocaleString();
+      const totalPallets = toInt(summary.total_pallets).toLocaleString();
+      const totalBranches = toInt(summary.total_branches).toLocaleString();
+      const totalProvinces = toInt(summary.total_provinces).toLocaleString();
+
+      byId("sumBoxes").textContent = totalBoxes;
+      byId("sumPallets").textContent = totalPallets;
+      byId("sumBranches").textContent = totalBranches;
+      byId("sumProvinces").textContent = totalProvinces;
+
+      const idMap = {
+        printSumBoxes: totalBoxes,
+        printSumPallets: totalPallets,
+        printSumBranches: totalBranches,
+        printSumProvinces: totalProvinces
+      };
+      Object.keys(idMap).forEach(id => {
+        const el = byId(id);
+        if (el) el.textContent = idMap[id];
+      });
+    }
+
+    function renderTable(items, summary){
+      const body = byId("reportBody");
+      const foot = byId("reportFoot");
+      const empty = byId("emptyState");
+      body.innerHTML = "";
+      foot.innerHTML = "";
+
+      if(!items.length){
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      items.forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="ta-c" data-label="ลำดับ">${i + 1}</td>
+          <td class="ta-c" data-label="รหัสสาขา">${escapeHtml(r.branch_code || "")}</td>
+          <td class="ta-l" data-label="ชื่อสาขา">${escapeHtml(r.customer_name || "")}</td>
+          <td class="ta-c" data-label="จังหวัด">${escapeHtml(r.province || "")}</td>
+          <td class="ta-r" data-label="Size M">${toInt(r.size_m).toLocaleString()}</td>
+          <td class="ta-r" data-label="Tote แดง">${toInt(r.tote_red).toLocaleString()}</td>
+          <td class="ta-r" data-label="Tote น้ำเงิน">${toInt(r.tote_blue).toLocaleString()}</td>
+          <td class="ta-r" data-label="Tote ดำ">${toInt(r.tote_black).toLocaleString()}</td>
+          <td class="ta-r" data-label="Tote เขียว">${toInt(r.tote_green).toLocaleString()}</td>
+          <td class="ta-r" data-label="จำนวนลังทั้งหมด">${toInt(r.row_total).toLocaleString()}</td>
+          <td class="ta-r" data-label="Pallet">${toInt(r.pallet).toLocaleString()}</td>
+          <td class="ta-c" data-label="WAVE">${escapeHtml(r.wave || "")}</td>
+          <td class="ta-c" data-label="ป้ายทะเบียน">${escapeHtml(r.driver_plate || "")}</td>
+        `;
+        body.appendChild(tr);
+      });
+
+      const t = summary.totals_row || {};
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="ta-c" colspan="4">รวม</td>
+        <td class="ta-r">${toInt(t.size_m).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.tote_red).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.tote_blue).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.tote_black).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.tote_green).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.row_total).toLocaleString()}</td>
+        <td class="ta-r">${toInt(t.pallet).toLocaleString()}</td>
+        <td class="ta-c" colspan="2">-</td>
+      `;
+      foot.appendChild(tr);
+    }
+
+    function escapeHtml(v){
+      return String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function validateFilters(){
+      const date_from = byId("dateFrom").value;
+      const date_to = byId("dateTo").value;
+      const status = byId("statusFilter").value || "ACTIVE";
+
+      if(!date_from) return { ok:false, error:"กรุณาเลือกวันที่เริ่มต้น" };
+      if(!date_to) return { ok:false, error:"กรุณาเลือกวันที่สิ้นสุด" };
+      if(date_from > date_to) return { ok:false, error:"วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด" };
+
+      return { ok:true, data:{ date_from, date_to, status } };
+    }
+
+    async function searchReport(){
+      const v = validateFilters();
+      if(!v.ok){
+        setStatus("err", v.error);
+        return;
+      }
+
+      state.filters = v.data;
+      byId("reportDateText").textContent = buildDateRangeText();
+      setStatus("info", "กำลังดึงข้อมูลรายงาน...");
+
+      try{
+        const data = await apiReportData(v.data);
+        state.items = data.items || [];
+        state.summary = data.summary || state.summary;
+        renderSummary(state.summary);
+        renderTable(state.items, state.summary);
+        setStatus("ok", `ดึงข้อมูลสำเร็จ ${state.items.length.toLocaleString()} รายการ`);
+      }catch(err){
+        setStatus("err", err.message || "เกิดข้อผิดพลาด");
+      }
+    }
+
+    function resetFilters(){
+      applyToday();
+      state.items = [];
+      renderSummary({
+        total_boxes:0,total_pallets:0,total_branches:0,total_provinces:0,
+        totals_row:{size_m:0,tote_red:0,tote_blue:0,tote_black:0,tote_green:0,row_total:0,pallet:0}
+      });
+      renderTable([], { totals_row:{} });
+      setStatus("", "");
+    }
+
+    function printReport(){
+      if(!state.items.length){
+        setStatus("err", "ยังไม่มีข้อมูลสำหรับพิมพ์รายงาน");
+        return;
+      }
+      window.print();
+    }
+
+    function exportExcel(){
+      if(!state.items.length){
+        setStatus("err", "ยังไม่มีข้อมูลสำหรับ Export");
+        return;
+      }
+
+      const dateText = byId("reportDateText").textContent || "-";
+      const summary = state.summary || {};
+      const t = summary.totals_row || {};
+
+      let rows = "";
+      state.items.forEach((r, idx) => {
+        rows += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(r.branch_code || "")}</td>
+            <td>${escapeHtml(r.customer_name || "")}</td>
+            <td>${escapeHtml(r.province || "")}</td>
+            <td>${toInt(r.size_m)}</td>
+            <td>${toInt(r.tote_red)}</td>
+            <td>${toInt(r.tote_blue)}</td>
+            <td>${toInt(r.tote_black)}</td>
+            <td>${toInt(r.tote_green)}</td>
+            <td>${toInt(r.row_total)}</td>
+            <td>${toInt(r.pallet)}</td>
+            <td>${escapeHtml(r.wave || "")}</td>
+            <td>${escapeHtml(r.driver_plate || "")}</td>
+          </tr>
+        `;
+      });
+
+      const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body{font-family:Kanit, Angsana New, sans-serif}
+            table{border-collapse:collapse; width:100%}
+            th,td{border:1px solid #666; padding:6px 8px; font-size:12pt}
+            th{background:#dde7f7}
+            .center{text-align:center}
+            .right{text-align:right}
+            .title{font-size:18pt; font-weight:bold; text-align:center; border:none}
+            .subtitle{font-size:12pt; text-align:center; border:none}
+            .no-border{border:none}
+            .sumlabel{font-weight:bold}
+            .summary-title{
+              font-size:16pt;
+              font-weight:700;
+              text-align:left;
+              border:none;
+              padding:10px 0 8px 0;
+            }
+            .summary-label{
+              font-size:14pt;
+              font-weight:700;
+              border:none;
+              padding:6px 8px 6px 0;
+              text-align:left;
+              white-space:nowrap;
+            }
+            .summary-num{
+              font-size:14pt;
+              font-weight:700;
+              border:none;
+              padding:6px 8px 6px 8px;
+              text-align:right;
+              white-space:nowrap;
+            }
+            .summary-unit{
+              font-size:14pt;
+              font-weight:700;
+              border:none;
+              padding:6px 0 6px 8px;
+              text-align:left;
+              white-space:nowrap;
+            }
+          </style>
+        </head>
+        <body>
+          <table>
+            <tr><td colspan="13" class="title">Control Outbound</td></tr>
+            <tr><td colspan="13" class="subtitle">${escapeHtml(dateText)}</td></tr>
+            <tr><td colspan="13" class="no-border"></td></tr>
+            <tr>
+              <th>ลำดับ</th>
+              <th>รหัสสาขา</th>
+              <th>ชื่อสาขา</th>
+              <th>จังหวัด</th>
+              <th>Size M</th>
+              <th>Tote แดง</th>
+              <th>Tote น้ำเงิน</th>
+              <th>Tote ดำ</th>
+              <th>Tote เขียว</th>
+              <th>จำนวนลังทั้งหมด</th>
+              <th>Pallet</th>
+              <th>WAVE</th>
+              <th>ป้ายทะเบียน</th>
+            </tr>
+            ${rows}
+            <tr>
+              <td colspan="4" class="center sumlabel">รวม</td>
+              <td class="right">${toInt(t.size_m)}</td>
+              <td class="right">${toInt(t.tote_red)}</td>
+              <td class="right">${toInt(t.tote_blue)}</td>
+              <td class="right">${toInt(t.tote_black)}</td>
+              <td class="right">${toInt(t.tote_green)}</td>
+              <td class="right">${toInt(t.row_total)}</td>
+              <td class="right">${toInt(t.pallet)}</td>
+              <td colspan="2" class="center">-</td>
+            </tr>
+            <tr><td colspan="13" class="no-border" style="height:12px"></td></tr>
+            <tr>
+              <td colspan="4" class="summary-title">สรุปงาน</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="summary-label">จำนวนกล่องทั้งหมด</td>
+              <td colspan="1" class="summary-num">${toInt(summary.total_boxes)}</td>
+              <td colspan="1" class="summary-unit">ชิ้น</td>
+              <td colspan="2" class="no-border"></td>
+            </tr>
+            <tr>
+              <td colspan="2" class="summary-label">จำนวนพาเลททั้งหมด</td>
+              <td colspan="1" class="summary-num">${toInt(summary.total_pallets)}</td>
+              <td colspan="1" class="summary-unit">พาเลท</td>
+              <td colspan="2" class="no-border"></td>
+            </tr>
+            <tr>
+              <td colspan="2" class="summary-label">จำนวนสาขาทั้งหมด</td>
+              <td colspan="1" class="summary-num">${toInt(summary.total_branches)}</td>
+              <td colspan="1" class="summary-unit">สาขา</td>
+              <td colspan="2" class="no-border"></td>
+            </tr>
+            <tr>
+              <td colspan="2" class="summary-label">จำนวนจังหวัดที่ส่ง</td>
+              <td colspan="1" class="summary-num">${toInt(summary.total_provinces)}</td>
+              <td colspan="1" class="summary-unit">จังหวัด</td>
+              <td colspan="2" class="no-border"></td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(["\ufeff", html], { type: "application/vnd.ms-excel" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `Control_Outbound_${(state.filters.date_from || "").replaceAll("-","")}_${(state.filters.date_to || "").replaceAll("-","")}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setStatus("ok", "Export Excel สำเร็จ");
+    }
+
+    byId("btnSearch").addEventListener("click", searchReport);
+    byId("btnReset").addEventListener("click", resetFilters);
+    byId("btnPrint").addEventListener("click", printReport);
+    byId("btnExport").addEventListener("click", exportExcel);
+    byId("btnToday").addEventListener("click", applyToday);
+
+    applyToday();
+    renderSummary(state.summary);
+    renderTable([], state.summary);
+  </script>
+</body>
+</html>

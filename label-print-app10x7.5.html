@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Print Label WMS</title>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style>
+:root{
+  --label-w:4in;--label-h:1.5in;--bg:#f6f7fb;--card:#fff;--border:#e5e7eb;--text:#111;
+  --muted:#6b7280;--radius:16px;--font:"Segoe UI",Tahoma,sans-serif
+}
+body{font-family:var(--font);margin:0;background:var(--bg);color:var(--text)}
+.wrap{max-width:1120px;margin:18px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+h1{margin:0;font-size:18px}.sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:900px){.grid,.grid3,.grid5{grid-template-columns:1fr}}
+label{font-size:12px;color:#374151;display:block;margin-bottom:6px}
+input,select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;font-size:14px;box-sizing:border-box}
+input[readonly]{background:#f9fafb}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+button{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:#111;color:#fff}
+button.secondary{background:#e5e7eb;color:#111}
+.status{margin-left:auto;font-size:12px;display:flex;gap:8px;align-items:center}.dot{width:10px;height:10px;border-radius:999px;background:#9ca3af}.dot.ok{background:#22c55e}.dot.bad{background:#ef4444}
+.labels{display:flex;flex-wrap:wrap;padding:12px;background:#fff;border:1px dashed #d1d5db;border-radius:16px;margin-top:16px;min-height:110px}
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px;margin-top:12px}
+.sectionTitle{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.pill{font-size:11px;border:1px solid var(--border);padding:2px 8px;border-radius:999px;background:#fff;color:#111}
+.dateLine{font-weight:800;font-size:12px;line-height:1.05;margin-top:2px;color:#111}
+.hidden{display:none!important}.infoBox{margin-top:10px;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;background:#fafafa;font-size:12px}
+
+/* Preview / Print label */
+.label{
+  width:var(--label-w);height:var(--label-h);box-sizing:border-box;padding:.10in .14in;border:1px solid #111;
+  display:block;overflow:hidden;background:#fff;flex:0 0 auto
+}
+.lay{
+  width:100%;height:100%;display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:auto auto 1fr auto;
+  column-gap:.10in;row-gap:.01in;
+}
+.leftTop{min-width:0;grid-column:1/2;grid-row:1/3}
+.store{
+  font-weight:900;font-size:16px;line-height:1.02;
+  white-space:normal;overflow:hidden;text-overflow:clip;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  max-height:calc(16px * 1.02 * 2);
+  word-break:break-word;
+}
+.right{text-align:right;font-weight:900;min-width:.84in;grid-column:2/3;grid-row:1/3}
+.right .cap{font-size:11px;line-height:1}.right .code{font-size:15px;line-height:1.02;margin-top:3px}
+.count{grid-column:1/3;grid-row:3/4;text-align:center;font-weight:900;font-size:26px;line-height:1;align-self:center;margin-top:0}
+.prov{
+  grid-column:1/3;grid-row:4/5;text-align:center;font-weight:900;font-size:15px;line-height:1.02;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:end;margin-top:1px;padding-bottom:.01in
+}
+.select2-container .select2-selection--single{height:42px;border:1px solid #d1d5db;border-radius:12px;display:flex;align-items:center;padding:0 8px;box-sizing:border-box;background:#fff}
+.select2-container--default .select2-selection--single .select2-selection__rendered{line-height:40px;padding-left:4px;color:#111;font-size:14px}
+.select2-container--default .select2-selection--single .select2-selection__arrow{height:40px;right:8px}
+.select2-dropdown{border:1px solid #d1d5db;border-radius:12px;overflow:hidden}
+.select2-search--dropdown .select2-search__field{border:1px solid #d1d5db;border-radius:10px;padding:8px 10px;outline:none}
+
+@media print{
+  @page{
+    size: 10cm 7.5cm;
+    margin: 0;
+  }
+
+  html, body{
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 10cm !important;
+    height: 7.5cm !important;
+    background: #fff !important;
+  }
+
+  .no-print{
+    display: none !important;
+  }
+
+  .wrap,
+  .labels{
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+  }
+
+  .labels{
+    display: block !important;
+  }
+
+  .label{
+    box-sizing: border-box !important;
+    width: 10cm !important;
+    height: 7.5cm !important;
+    margin: 0 !important;
+    padding: 0.07cm 0.11cm !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .label:last-child{
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  .lay{
+    height: 7.5cm !important;
+    display: grid !important;
+    grid-template-rows: auto auto 1fr auto !important;
+    row-gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .top{
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: start !important;
+    column-gap: 0.08in !important;
+  }
+
+  .left{
+    min-width: 0 !important;
+  }
+
+  .store{
+    font-size: 15px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow: hidden !important;
+    max-height: 0.34cm !important;
+  }
+
+  .dateLine{
+    font-size: 18px !important;
+    line-height: 1 !important;
+    margin-top: 0.01cm !important;
+  }
+
+  .right{
+    text-align: right !important;
+    white-space: nowrap !important;
+  }
+
+  .right .cap{
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  .right .code{
+    font-size: 20px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    margin-top: 0.01cm !important;
+  }
+
+  .mid{
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 0.34cm !important;
+  }
+
+  .count{
+    font-size: 30px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+  }
+
+  .bottom{
+    display: flex !important;
+    align-items: end !important;
+    justify-content: center !important;
+    min-height: 0.20in !important;
+  }
+
+  .prov{
+    font-size: 20px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+</style>
+
+<script src="config.js"></script>
+<script src="menu.js"></script>
+<script src="auth.js"></script>
+<script src="shell.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="card no-print">
+    <h1>Print Label WMS 4x1.5 นิ้ว</h1>
+    <div class="sub">รองรับ PRINT / REPRINT / CANCEL ผ่าน Google Apps Script JSONP</div>
+
+    <div class="section">
+      <div class="sectionTitle"><span class="pill">1</span> ประเภทงาน</div>
+      <div class="grid3">
+        <div>
+          <label>Action</label>
+          <select id="action">
+            <option value="PRINT" selected>PRINT</option>
+            <option value="REPRINT">REPRINT</option>
+            <option value="CANCEL">CANCEL</option>
+          </select>
+        </div>
+        <div id="refWrap" class="hidden">
+          <label>Reference Job ID</label>
+          <input id="refJobId" placeholder="เช่น LBL-20260314-001">
+        </div>
+        <div>
+          <label>หมายเหตุ</label>
+          <input id="note" placeholder="optional">
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="customerSection">
+      <div class="sectionTitle"><span class="pill">2</span> ข้อมูลลูกค้า</div>
+      <div class="grid">
+        <div>
+          <label>เลือกลูกค้า</label>
+          <select id="customerSelect" style="width:100%"></select>
+        </div>
+        <div class="grid3">
+          <div><label>รหัสสาขา</label><input id="branchCode" readonly></div>
+          <div><label>ชื่อร้าน</label><input id="customerName" readonly></div>
+          <div><label>จังหวัด</label><input id="province" readonly></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="printSection">
+      <div class="sectionTitle"><span class="pill">3</span> ข้อมูลงานพิมพ์</div>
+      <div class="grid3">
+        <div><label>จำนวนกล่องทั้งหมด</label><input id="totalBoxes" type="number" min="0" step="1" value="0"></div>
+        <div><label>Pallet</label><input id="pallet" placeholder="เช่น PLT-01"></div>
+        <div><label>Wave</label><input id="wave" placeholder="เช่น WAVE12345" autocomplete="off"></div>
+      </div>
+    </div>
+
+    <div class="section" id="driverSection">
+      <div class="sectionTitle"><span class="pill">4</span> ข้อมูลคนขับรถ</div>
+      <div class="grid">
+        <div>
+          <label>เลือกคนขับ</label>
+          <select id="driverSelect" style="width:100%"></select>
+        </div>
+        <div class="grid3">
+          <div><label>ทะเบียน</label><input id="driverPlate" readonly></div>
+          <div><label>ชื่อ พขร.</label><input id="driverName" readonly></div>
+          <div><label>เบอร์โทร</label><input id="driverPhone" readonly></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="boxSection">
+      <div class="sectionTitle"><span class="pill">5</span> ประเภทลัง</div>
+      <div class="grid5">
+        <div><label>Size M</label><input id="sizeM" type="number" min="0" step="1" value="0"></div>
+        <div><label>tote_blue</label><input id="blue" type="number" min="0" step="1" value="0"></div>
+        <div><label>tote_red</label><input id="red" type="number" min="0" step="1" value="0"></div>
+        <div><label>tote_green</label><input id="green" type="number" min="0" step="1" value="0"></div>
+        <div><label>tote_black</label><input id="black" type="number" min="0" step="1" value="0"></div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="btnGen" type="button">สร้างตัวอย่าง</button>
+      <button id="btnSubmit" type="button">ดำเนินการ</button>
+      <button class="secondary" id="btnLoad" type="button">โหลดจาก Job ID</button>
+      <button class="secondary" id="btnClear" type="button">ล้าง</button>
+      <div class="status"><div class="dot" id="apiDot"></div><span id="apiText">พร้อมใช้งาน</span><span class="sub" id="lastJob" style="margin-left:10px;"></span></div>
+    </div>
+
+    <div class="infoBox">
+      <div><strong>WEBAPP_URL:</strong> <span id="showUrl"></span></div>
+      <div><strong>โหมด:</strong> PRINT = บันทึกและพิมพ์, REPRINT = อ้างอิง Job ID เดิมแล้วสร้าง Job ใหม่, CANCEL = ยกเลิก Job เดิมโดยไม่พิมพ์</div>
+    </div>
+  </div>
+
+  <div class="labels" id="labels"></div>
+</div>
+<script>
+const WEBAPP_URL = window.APP_CONFIG.WEBAPP_URL;
+const API_TOKEN  = window.APP_CONFIG.API_TOKEN;
+
+const byId = (id) => document.getElementById(id);
+let customers = [], drivers = [], isBusy = false;
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;")}
+function toIntFrom(id){const v=Number(byId(id).value);return Number.isFinite(v)&&v>0?Math.floor(v):0}
+function setApiStatus(state,text){const dot=byId("apiDot");dot.classList.remove("ok","bad");if(state==="ok")dot.classList.add("ok");if(state==="bad")dot.classList.add("bad");byId("apiText").textContent=text}
+function setLastJob(text){byId("lastJob").textContent=text||""}
+function jsonpRequest(url){return new Promise((resolve,reject)=>{const cb="cb_"+Math.random().toString(36).slice(2);const script=document.createElement("script");window[cb]=(data)=>{try{delete window[cb]}catch(_){}script.remove();resolve(data)};script.src=url+(url.includes("?")?"&":"?")+"callback="+encodeURIComponent(cb);script.onerror=()=>{try{delete window[cb]}catch(_){}script.remove();reject(new Error("JSONP request failed"))};document.body.appendChild(script)})}
+async function apiGet(op,params={}){const qs=new URLSearchParams({op,token:API_TOKEN,...params});const json=await jsonpRequest(WEBAPP_URL+"?"+qs.toString());if(!json||!json.ok)throw new Error((json&&json.error)?json.error:"API error");return json}
+async function apiTry(ops, params={}){let lastErr=null;for(const op of ops){try{return await apiGet(op,params)}catch(err){lastErr=err;const msg=String(err&&err.message||err||"");if(!/Unknown op|unknown op/i.test(msg)) throw err;}}throw lastErr||new Error("API error")}
+function formatThaiDateShort(dt){const d=new Date(dt);const dd=String(d.getDate()).padStart(2,"0");const mm=String(d.getMonth()+1).padStart(2,"0");const yyyy=String(d.getFullYear()+543);return `${dd}/${mm}/${yyyy}`}
+function buildLabelHTML(d,idx){
+  return `<div class="label"><div class="lay"><div class="leftTop"><div class="store">${esc(d.customer_name||"-")}</div><div class="dateLine">${esc(formatThaiDateShort(d.print_date||new Date()))}</div></div><div class="right"><div class="cap">รหัสสาขา:</div><div class="code">${esc(d.branch_code||"-")}</div></div><div class="count">${idx}/${Number(d.total_boxes||0)}</div><div class="prov">จว.: ${esc(d.province||"-")}</div></div></div>`
+}
+function renderLabels(d){const c=byId("labels");c.innerHTML="";if(Number(d.total_boxes||0)<=0){c.innerHTML='<div style="color:#6b7280;padding:12px;">กรุณาใส่จำนวนกล่องทั้งหมดมากกว่า 0</div>';return}let html="";for(let i=1;i<=d.total_boxes;i++)html+=buildLabelHTML(d,i);c.innerHTML=html}
+function collectForm(){return {print_date:new Date().toISOString(),branch_code:byId("branchCode").value.trim(),customer_name:byId("customerName").value.trim(),province:byId("province").value.trim(),total_boxes:toIntFrom("totalBoxes"),pallet:byId("pallet").value.trim(),wave:byId("wave").value.trim(),size_m:toIntFrom("sizeM"),tote_blue:toIntFrom("blue"),tote_red:toIntFrom("red"),tote_green:toIntFrom("green"),tote_black:toIntFrom("black"),driver_plate:byId("driverPlate").value.trim(),driver_name:byId("driverName").value.trim(),driver_phone:byId("driverPhone").value.trim(),action:byId("action").value,note:byId("note").value.trim(),ref_job_id:byId("refJobId").value.trim()}}
+function validateForm(d){if(d.action==="PRINT"){if(!d.branch_code)return"กรุณาเลือกลูกค้า";if(!d.customer_name)return"ชื่อร้านว่าง";if(!d.province)return"จังหวัดว่าง";if(d.total_boxes<=0)return"จำนวนกล่องทั้งหมดต้องมากกว่า 0"}else{if(!d.ref_job_id)return"กรุณากรอก Reference Job ID"}return""}
+function fillFormFromLog(item){
+  byId("branchCode").value=item.branch_code||"";byId("customerName").value=item.customer_name||"";byId("province").value=item.province||"";
+  byId("totalBoxes").value=Number(item.total_boxes||0);byId("pallet").value=item.pallet||"";byId("wave").value=item.wave||"";
+  byId("sizeM").value=Number(item.size_m||0);byId("blue").value=Number(item.tote_blue||0);byId("red").value=Number(item.tote_red||0);
+  byId("green").value=Number(item.tote_green||0);byId("black").value=Number(item.tote_black||0);byId("driverPlate").value=item.driver_plate||"";
+  byId("driverName").value=item.driver_name||"";byId("driverPhone").value=item.driver_phone||"";renderLabels({...item,print_date:new Date().toISOString()})
+}
+function initCustomerSelect(){const $sel=jQuery("#customerSelect");$sel.empty();$sel.append(new Option("","",true,true));customers.forEach(c=>{$sel.append(new Option(`${c.branch_code} - ${c.customer_name} (${c.province})`,c.branch_code,false,false))});$sel.select2({placeholder:"ค้นหา รหัสสาขา / ชื่อร้าน / จังหวัด",allowClear:true,width:"resolve"});$sel.on("change",function(){const branch=jQuery(this).val();const found=customers.find(x=>x.branch_code===branch);byId("branchCode").value=found?found.branch_code:"";byId("customerName").value=found?found.customer_name:"";byId("province").value=found?found.province:""})}
+function initDriverSelect(){const $sel=jQuery("#driverSelect");$sel.empty();$sel.append(new Option("","",true,true));drivers.forEach(d=>{$sel.append(new Option(`${d.plate} - ${d.driver_name} (${d.phone})`,d.plate,false,false))});$sel.select2({placeholder:"ค้นหา ทะเบียน / ชื่อ / เบอร์โทร",allowClear:true,width:"resolve"});$sel.on("change",function(){const plate=jQuery(this).val();const found=drivers.find(x=>x.plate===plate);byId("driverPlate").value=found?found.plate:"";byId("driverName").value=found?found.driver_name:"";byId("driverPhone").value=found?found.phone:""})}
+function syncActionUI(){const action=byId("action").value;const isPrint=action==="PRINT";byId("refWrap").classList.toggle("hidden",isPrint);["customerSection","printSection","driverSection","boxSection","btnGen"].forEach(id=>byId(id).classList.toggle("hidden",!isPrint&&id!=="btnGen"));}
+async function loadByJobId(){const jobId=byId("refJobId").value.trim();if(!jobId){alert("กรุณากรอก Job ID");return}setApiStatus("","กำลังโหลดข้อมูล...");const res=await apiTry(["get_job","get"],{job_id:jobId});fillFormFromLog(res.item||res.data||res);setApiStatus("ok","โหลดสำเร็จ");setLastJob(`Loaded: ${jobId}`)}
+async function handleSubmit(){
+  if(isBusy)return;isBusy=true;byId("btnSubmit").disabled=true;
+  try{
+    const d=collectForm();const err=validateForm(d);if(err){alert(err);return}
+    if(d.action==="PRINT"){
+      setApiStatus("","กำลังบันทึก...");
+      const res=await apiGet("log",{branch_code:d.branch_code,customer_name:d.customer_name,province:d.province,pallet:d.pallet,wave:d.wave,total_boxes:String(d.total_boxes),size_m:String(d.size_m),tote_blue:String(d.tote_blue),tote_red:String(d.tote_red),tote_green:String(d.tote_green),tote_black:String(d.tote_black),driver_plate:d.driver_plate,driver_name:d.driver_name,driver_phone:d.driver_phone,note:d.note,user_agent:navigator.userAgent});
+      setLastJob(`Last Job: ${res.job_id}`);setApiStatus("ok","บันทึกสำเร็จ");renderLabels(d);window.print();
+    }else if(d.action==="REPRINT"){
+      setApiStatus("","กำลังโหลด Job เดิม...");
+      const src=await apiTry(["get_job","get"],{job_id:d.ref_job_id});
+      const item=src.item||src.data||src;fillFormFromLog(item);
+      setApiStatus("","กำลังสร้าง REPRINT...");
+      const res=await apiTry(["reprint_job","reprint"],{job_id:d.ref_job_id,note:d.note,user_agent:navigator.userAgent});
+      setLastJob(`Reprint Job: ${res.job_id} (from ${d.ref_job_id})`);setApiStatus("ok","REPRINT สำเร็จ");
+      renderLabels({...item, print_date:new Date().toISOString()});
+      window.print();
+    }else if(d.action==="CANCEL"){
+      setApiStatus("","กำลังยกเลิก...");
+      await apiTry(["delete_job","cancel"],{job_id:d.ref_job_id,note:d.note});
+      setLastJob(`Canceled: ${d.ref_job_id}`);setApiStatus("ok","ยกเลิกสำเร็จ");byId("labels").innerHTML='<div style="color:#6b7280;padding:12px;">ยกเลิก Job สำเร็จ ไม่มีการพิมพ์สติ๊กเกอร์</div>'
+    }
+  }catch(e){setApiStatus("bad","ดำเนินการไม่สำเร็จ");alert((e&&e.message)?e.message:e)}
+  finally{isBusy=false;byId("btnSubmit").disabled=false}
+}
+byId("action").addEventListener("change",syncActionUI);
+byId("btnGen").addEventListener("click",()=>{const d=collectForm();const err=validateForm({...d,action:"PRINT"});if(err){alert(err);return}renderLabels(d)});
+byId("btnLoad").addEventListener("click",async()=>{try{await loadByJobId()}catch(e){setApiStatus("bad","โหลดไม่สำเร็จ");alert((e&&e.message)?e.message:e)}});
+byId("btnSubmit").addEventListener("click",handleSubmit);
+byId("btnClear").addEventListener("click",()=>{jQuery("#customerSelect").val(null).trigger("change");jQuery("#driverSelect").val(null).trigger("change");["totalBoxes","sizeM","blue","red","green","black"].forEach(id=>byId(id).value=0);["note","pallet","wave","refJobId","branchCode","customerName","province","driverPlate","driverName","driverPhone"].forEach(id=>byId(id).value="");byId("action").value="PRINT";byId("labels").innerHTML="";setApiStatus("ok","พร้อมใช้งาน");setLastJob("");syncActionUI()});
+byId("wave").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();if(byId("action").value==="PRINT")handleSubmit()}});
+(async function init(){try{byId("showUrl").textContent=WEBAPP_URL;setApiStatus("","กำลังโหลดข้อมูล...");await apiTry(["health"]);customers=(await apiGet("customers")).items||[];drivers=(await apiGet("drivers")).items||[];initCustomerSelect();initDriverSelect();syncActionUI();setApiStatus("ok","พร้อมใช้งาน")}catch(e){setApiStatus("bad","โหลดข้อมูลไม่สำเร็จ");alert("โหลดข้อมูลไม่สำเร็จ: "+((e&&e.message)?e.message:e))}})();
+</script>
+</body>
+</html>
